@@ -29,9 +29,12 @@ else
 	fi
 fi
 
-if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge 20 ];
+if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge "${LLINDAR_TEMPERATURA_BUCEIG}" ];
 then
 	send "TOTS cap a l'aigua - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
 else
-	send "no apte per buceig - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
+	if [ "${VERBOSE}" -eq 1 ];
+	then
+		send "no apte per buceig - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
+	fi
 fi
