@@ -20,7 +20,6 @@ function blockpenis()
 
                 echo "   $1   "
 
-                TAMANY_PENIS=$(echo "   $1   " | wc -c)
                 echo -n " 8"
                 for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; sleep 0.01; done
                 echo D~
@@ -91,7 +90,8 @@ then
 	then
 		BOTID=${BASH_REMATCH[1]};
 	fi
-	if [ "$DEBUG" -eq 1 ]; then penis "@${MYUSERNAME} - ${MYFIRSTNAME} - botid: ${BOTID}"; fi;
+
+	if [ "$DEBUG" -eq 1 ]; then blockpenis "@${MYUSERNAME} - ${MYFIRSTNAME} - botid: ${BOTID}"; fi;
 else
 	blockpenis "Error: wrong token";
 	exit 1;
