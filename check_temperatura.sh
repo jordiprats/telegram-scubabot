@@ -1,5 +1,28 @@
 #!/bin/bash
 
+function ona_to_descripcio()
+{
+#    if (0 === a) return 50;
+#    if (0 < a && 0.1 >= a) return 51;
+#    if (0.1 < a && 0.5 >= a) return 52;
+#    if (0.5 < a && 1.25 >= a) return 53;
+#    if (1.25 < a && 2.5 >= a) return 54;
+#    if (2.5 < a && 4 >= a) return 55;
+#    if (4 < a && 6 >= a) return 56;
+#    if (6 < a && 9 >= a) return 57;
+#    if (9 < a && 14 >= a) return 58;
+#    if (14 < a) return 59
+	if [ $1 -gt 14 ];
+	then
+		echo "";
+	elif [ $2 -gt 9 ];
+	then
+		echo "";
+	else
+		echo "";
+	fi
+}
+
 function telegramsend() 
 {
         curl -s \
