@@ -9,6 +9,25 @@ function telegramsend()
         -d chat_id=$CHATID
 }
 
+function blockpenis()
+{
+        if [ ! -z "$1" ];
+        then
+                TAMANY_PENIS=$(echo "   $1   " | wc -c)
+                echo -n " 8"
+                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; sleep 0.01; done
+                echo D~
+
+                echo "   $1   "
+
+                TAMANY_PENIS=$(echo "   $1   " | wc -c)
+                echo -n " 8"
+                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; sleep 0.01; done
+                echo D~
+
+        fi
+}
+
 function penis()
 {
 	if [ ! -z "$1" ];
@@ -74,7 +93,7 @@ then
 	fi
 	if [ "$DEBUG" -eq 1 ]; then penis "@${MYUSERNAME} - ${MYFIRSTNAME} - botid: ${BOTID}"; fi;
 else
-	penis "Error: wrong token";
+	blockpenis "Error: wrong token";
 	exit 1;
 fi
 
