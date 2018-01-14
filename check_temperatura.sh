@@ -120,4 +120,4 @@ else
 	fi
 fi
 
-if [ "$DEBUG" -eq 1 ]; then penis "$MESSAGE"; fi;
+if [ "$DEBUG" -eq 1 ]; then echo "$MESSAGE"; fi;
