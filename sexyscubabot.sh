@@ -92,16 +92,16 @@ TEMPERATURA_MAX_EXTERIOR=$(echo $DADES_METEOCAT | grep temperatura | sed 's/},{/
 
 ALTURA_ONES_PREVISIO=$(echo $DADES_METEOCAT | sed 's/}]},/\n/g' | cut -f1,12,13 -d, | sed 's/[{}]//g')
 
-BASEDIRBCK=$(dirname $0)
-BASENAMEBCK=$(basename $0)
+BASEDIR=$(dirname $0)
+BASENAME=$(basename $0)
 
 if [ ! -z "$1" ] && [ -f "$1" ];
 then
 	. $1 2>/dev/null
 else
-	if [[ -s "$BASEDIRBCK/${BASENAMEBCK%%.*}.config" ]];
+	if [[ -s "$BASEDIR/${BASENAME%%.*}.config" ]];
 	then
-		. $BASEDIRBCK/${BASENAMEBCK%%.*}.config 2>/dev/null
+		. $BASEDIR/${BASENAME%%.*}.config 2>/dev/null
 	else
 		echo "config file missing"
 		exit 1
@@ -131,6 +131,8 @@ else
 	blockpenis "Error: wrong token";
 	exit 1;
 fi
+
+
 
 if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge "${LLINDAR_TEMPERATURA_BUCEIG}" ];
 then
