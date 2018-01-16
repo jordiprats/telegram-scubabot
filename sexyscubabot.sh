@@ -12,14 +12,24 @@ function ona_to_descripcio()
 #    if (6 < a && 9 >= a) return 57;
 #    if (9 < a && 14 >= a) return 58;
 #    if (14 < a) return 59
-	if [ $1 -gt 14 ];
-	then
-		echo "";
-	elif [ $2 -gt 9 ];
-	then
-		echo "";
+	if (( $(echo "$1 > 14" | bc -l) )); then
+		echo "mar enorme";
+	elif (( $(echo "$1 > 9" | bc -l) )); then
+		echo "mar molt alta";
+	elif (( $(echo "$1 > 6" | bc -l) )); then
+		echo "mar desfeta"
+	elif (( $(echo "$1 > 4" | bc -l) )); then
+		echo "mar brava"
+	elif (( $(echo "$1 > 2.5" | bc -l) )); then
+		echo "maregassa"
+	elif (( $(echo "$1 > 1.25" | bc -l) )); then
+		echo "maror"
+	elif (( $(echo "$1 > 0.5" | bc -l) )); then
+		echo "marejol"
+	elif (( $(echo "$1 > 0.1" | bc -l) ));
+		echo "mar arrissada"
 	else
-		echo "";
+		echo "mar plana";
 	fi
 }
 
@@ -79,6 +89,8 @@ DADES_METEOCAT=$(curl 'http://meteo.cat/prediccio/platges/tossa-de-mar-de-la-mar
 TEMPERATURA_MAX_AIGUA=$(echo $DADES_METEOCAT | grep temperatura | sed 's/},{/\n/g' | grep "temperatura_aigua" | awk -F: '{ print $NF }' | sort -n | tail -n1 | cut -f1 -d.)
 
 TEMPERATURA_MAX_EXTERIOR=$(echo $DADES_METEOCAT | grep temperatura | sed 's/},{/\n/g' | grep '"temperatura","valor"' | awk -F: '{ print $NF }' | sort -n | tail -n1 | cut -f1 -d.)
+
+ALTURA_ONES_PREVISIO=$(echo $DADES_METEOCAT | sed 's/}]},/\n/g' | cut -f1,12,13 -d, | sed 's/[{}]//g')
 
 BASEDIRBCK=$(dirname $0)
 BASENAMEBCK=$(basename $0)
