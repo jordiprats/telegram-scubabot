@@ -137,7 +137,11 @@ else
 fi
 
 DADES_TMP_JSON=$(mktemp /tmp/sexyscubabot.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
-echo "${DADES_METEOCAT}" > $DADES_TMP_JSON
+echo "{" > $DADES_TMP_JSON
+echo "${DADES_METEOCAT}" >> $DADES_TMP_JSON
+echo '"marcmoyafredolic": true' >> $DADES_TMP_JSON
+echo "}" >> $DADES_TMP_JSON
+sed 's/dades:/\"dades\":/g' -i $DADES_TMP_JSON
 
 if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge "${LLINDAR_TEMPERATURA_BUCEIG}" ];
 then
