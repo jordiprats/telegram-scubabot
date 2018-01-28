@@ -26,14 +26,14 @@ function ona_to_descripcio()
 		echo "maror"
 	elif (( $(echo "$1 > 0.5" | bc -l) )); then
 		echo "marejol"
-	elif (( $(echo "$1 > 0.1" | bc -l) ));
+	elif (( $(echo "$1 > 0.1" | bc -l) )); then
 		echo "mar arrissada"
 	else
 		echo "mar plana";
 	fi
 }
 
-function telegramsend() 
+function telegramsend()
 {
         curl -s \
         -X POST \
@@ -92,6 +92,10 @@ TEMPERATURA_MAX_EXTERIOR=$(echo $DADES_METEOCAT | grep temperatura | sed 's/},{/
 
 ALTURA_ONES_PREVISIO=$(echo $DADES_METEOCAT | sed 's/}]},/\n/g' | cut -f1,12,13 -d, | sed 's/[{}]//g')
 
+DIES_PREVISIO_DISPONIBLES=$(echo $DADES_METEOCAT | sed 's/}]},/\n/g' | awk -F\" '{ print $4 }' | cut -f1 -dT | sort |uniq)
+
+
+
 BASEDIR=$(dirname $0)
 BASENAME=$(basename $0)
 
@@ -109,19 +113,19 @@ else
 fi
 
 ABOUTME=`curl -s "https://api.telegram.org/bot${TOKENBOT}/getMe"`
-if [[ "$ABOUTME" =~ \"ok\"\:true\, ]]; 
+if [[ "$ABOUTME" =~ \"ok\"\:true\, ]];
 then
-	if [[ "$ABOUTME" =~ \"username\"\:\"([^\"]+)\" ]]; 
+	if [[ "$ABOUTME" =~ \"username\"\:\"([^\"]+)\" ]];
 	then
 		MYUSERNAME=${BASH_REMATCH[1]}
 	fi
 
-	if [[ "$ABOUTME" =~ \"first_name\"\:\"([^\"]+)\" ]]; 
+	if [[ "$ABOUTME" =~ \"first_name\"\:\"([^\"]+)\" ]];
 	then
 		MYFIRSTNAME=${BASH_REMATCH[1]}
 	fi
 
-	if [[ "$ABOUTME" =~ \"id\"\:([0-9\-]+), ]]; 
+	if [[ "$ABOUTME" =~ \"id\"\:([0-9\-]+), ]];
 	then
 		BOTID=${BASH_REMATCH[1]};
 	fi
@@ -132,14 +136,15 @@ else
 	exit 1;
 fi
 
-
+DADES_TMP_JSON=$(mktemp /tmp/sexyscubabot.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
+echo "${DADES_METEOCAT}" > $DADES_TMP_JSON
 
 if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge "${LLINDAR_TEMPERATURA_BUCEIG}" ];
 then
-	MESSAGE="TOTS cap a l'aigua - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
+	MESSAGE="APTE per busseig - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
 	SEND=1
 else
-	MESSAGE="no apte per buceig - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
+	MESSAGE="no apte per busseig - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
 	SEND=0
 fi
 
@@ -147,7 +152,7 @@ if [ "$SEND" -eq 1 ];
 then
 	if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
 	telegramsend $MESSAGE
-else	
+else
 	if [ "${VERBOSE}" -eq 1 ];
 	then
 		if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
@@ -158,3 +163,5 @@ else
 fi
 
 if [ "$DEBUG" -eq 1 ]; then echo "$MESSAGE"; fi;
+
+#rm -f "${DADES_TMP_JSON}"
