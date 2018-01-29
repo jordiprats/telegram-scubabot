@@ -241,6 +241,7 @@ do
 	
 	DESCRIPCIO_DIA="exterior max: $(echo ${MAX_TEMPERATURA} | cut -f1 -d.)C min: $(echo ${MIN_TEMPERATURA} | cut -f1 -d.)C; temperatura aigua max: $(echo ${MAX_TEMPERATURA_AIGUA} | cut -f1 -d.)C min: $(echo ${MIN_TEMPERATURA_AIGUA} | cut -f1 -d.)C; altura ona max: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m min: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA) - $(ona_to_descripcio $MIN_ALTURA_ONA))"
 
+	# regla del marc
 	if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) )) && (( $(echo "$MAX_TEMPERATURA >= 20" | bc -l) ));
 	then
 		# humit: por encima de 15°C
@@ -248,18 +249,18 @@ do
 		# sec: menys de 10
 		if (( $(echo "$MAX_TEMPERATURA_AIGUA < 10 " | bc -l) ));
 		then
-			MESSAGE="APTE per busseig amb ${i} traje SEC - ${DESCRIPCIO_DIA}"
+			MESSAGE="${i} - APTE per busseig amb traje SEC - ${DESCRIPCIO_DIA}"
 			SEND=1
 		elif (( $(echo "$MAX_TEMPERATURA_AIGUA < 15 " | bc -l) ));
 		then
-			MESSAGE="APTE per busseig amb ${i} SEMI-SEC - ${DESCRIPCIO_DIA}"
+			MESSAGE="${i} - APTE per busseig amb SEMI-SEC - ${DESCRIPCIO_DIA}"
 			SEND=1
 		else
-			MESSAGE="APTE per busseig ${i} SENSE EXCUSES - ${DESCRIPCIO_DIA}"
+			MESSAGE="${i} - APTE per busseig SENSE EXCUSES - ${DESCRIPCIO_DIA}"
 			SEND=1
 		fi
 	else
-		MESSAGE="sou una colla de fredolics - ${i} - ${DESCRIPCIO_DIA}"
+		MESSAGE="${i} - sou una colla de FREDOLICS - ${DESCRIPCIO_DIA}"
 		SEND=1
 	fi
 
