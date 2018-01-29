@@ -259,26 +259,28 @@ do
 			SEND=1
 		fi
 	else
-		MESSAGE="sou una colla de fredolics - ${DESCRIPCIO_DIA}"
+		MESSAGE="sou una colla de fredolics - ${i} - ${DESCRIPCIO_DIA}"
 		SEND=1
 	fi
+
+	if [ "$SEND" -eq 1 ];
+	then
+        	if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
+	        telegramsend "$MESSAGE"
+	else
+        	if [ "${VERBOSE}" -eq 1 ];
+	        then
+        	        if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
+                	telegramsend "$MESSAGE"
+	        else
+        	        if [ "$DEBUG" -eq 1 ]; then echo "NO ENVIAT a telegram:"; fi;
+	        fi
+	fi
+
+	if [ "$DEBUG" -eq 1 ]; then echo "$MESSAGE"; fi;
+
+
 	let DIES_COUNT+1
 done
-
-if [ "$SEND" -eq 1 ];
-then
-	if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
-	telegramsend "$MESSAGE"
-else
-	if [ "${VERBOSE}" -eq 1 ];
-	then
-		if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
-		telegramsend "$MESSAGE"
-	else
-		if [ "$DEBUG" -eq 1 ]; then echo "NO ENVIAT a telegram:"; fi;
-	fi
-fi
-
-if [ "$DEBUG" -eq 1 ]; then echo "$MESSAGE"; fi;
 
 rm -f "${DADES_TMP_JSON}"
