@@ -268,12 +268,12 @@ done
 if [ "$SEND" -eq 1 ];
 then
 	if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
-	telegramsend $MESSAGE
+	telegramsend "$MESSAGE"
 else
 	if [ "${VERBOSE}" -eq 1 ];
 	then
 		if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
-		telegramsend $MESSAGE
+		telegramsend "$MESSAGE"
 	else
 		if [ "$DEBUG" -eq 1 ]; then echo "NO ENVIAT a telegram:"; fi;
 	fi
