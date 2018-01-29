@@ -162,6 +162,12 @@ DADES_METEOCAT_JSON_LEAF="$(cat "${DADES_TMP_JSON}" | bash ${BASEDIR}/inc/JSON.s
 DIES_COUNT=0
 for i in ${DIES_PREVISIO_DISPONIBLES};
 do
+	MAX_TEMPERATURA="X"
+	MIN_TEMPERATURA="X"
+	MAX_TEMPERATURA_AIGUA="X"
+	MIN_TEMPERATURA_AIGUA="X"
+	MAX_ALTURA_ONA="X"
+	MIN_ALTURA_ONA="X"
 	for j in {9..18};
 	do
 		let HORA=j+DIES_COUNT*24
@@ -190,18 +196,74 @@ do
 		REF_FILE_TEMPERATURA_AIGUA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILA}" | grep "\"temperatura_aigua\"" | cut -f1-4 -d,)"
 
 		TEMPERATURA_AIGUA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILE_TEMPERATURA_AIGUA}" | grep "valor" | awk '{ print $NF }')"
+		
+		# echo $TEMPERATURA $ALTURA_ONA $TEMPERATURA_AIGUA
+		if [ "${MAX_TEMPERATURA}" = "X" ];
+		then
+			MAX_TEMPERATURA="${TEMPERATURA}"
+			MIN_TEMPERATURA="${TEMPERATURA}"
+			MAX_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
+			MIN_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
+			MAX_ALTURA_ONA="${ALTURA_ONA}"
+			MIN_ALTURA_ONA="${ALTURA_ONA}"
+		fi
+		if (( $(echo "$TEMPERATURA > $MAX_TEMPERATURA" | bc -l) ));
+		then
+			MAX_TEMPERATURA="${TEMPERATURA}"
+		fi
+		if (( $(echo "$TEMPERATURA < $MIN_TEMPERATURA" | bc -l) ));
+		then
+			MIN_TEMPERATURA="${TEMPERATURA}"
+		fi
+
+                if (( $(echo "$TEMPERATURA_AIGUA > $MAX_TEMPERATURA_AIGUA" | bc -l) ));
+                then
+                        MAX_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
+                fi
+                if (( $(echo "$TEMPERATURA_AIGUA < $MIN_TEMPERATURA_AIGUA" | bc -l) ));
+                then
+                        MIN_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
+                fi
+
+                if (( $(echo "$ALTURA_ONA > $MAX_ALTURA_ONA" | bc -l) ));
+                then
+                        MAX_ALTURA_ONA="${ALTURA_ONA}"
+                fi
+                if (( $(echo "$ALTURA_ONA < $MIN_ALTURA_ONA" | bc -l) ));
+                then
+                        MIN_ALTURA_ONA="${ALTURA_ONA}"
+                fi
+
 	done
+	#echo altura ona $MAX_ALTURA_ONA $MIN_ALTURA_ONA
+	#echo temperatura $MAX_TEMPERATURA $MIN_TEMPERATURA
+	#echo temperatura aigua $MAX_TEMPERATURA_AIGUA $MIN_TEMPERATURA_AIGUA
+	
+	DESCRIPCIO_DIA="exterior max: $(echo ${MAX_TEMPERATURA} | cut -f1 -d.)C min: $(echo ${MIN_TEMPERATURA} | cut -f1 -d.)C; temperatura aigua max: $(echo ${MAX_TEMPERATURA_AIGUA} | cut -f1 -d.)C min: $(echo ${MIN_TEMPERATURA_AIGUA} | cut -f1 -d.)C; altura ona max: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m min: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA) - $(ona_to_descripcio $MIN_ALTURA_ONA))"
+
+	if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) )) && (( $(echo "$MAX_TEMPERATURA >= 20" | bc -l) ));
+	then
+		# humit: por encima de 15°C
+		# semisec: entre 10 °C y 20 °C
+		# sec: menys de 10
+		if (( $(echo "$MAX_TEMPERATURA_AIGUA < 10 " | bc -l) ));
+		then
+			MESSAGE="APTE per busseig amb ${i} traje SEC - ${DESCRIPCIO_DIA}"
+			SEND=1
+		elif (( $(echo "$MAX_TEMPERATURA_AIGUA < 15 " | bc -l) ));
+		then
+			MESSAGE="APTE per busseig amb ${i} SEMI-SEC - ${DESCRIPCIO_DIA}"
+			SEND=1
+		else
+			MESSAGE="APTE per busseig ${i} SENSE EXCUSES - ${DESCRIPCIO_DIA}"
+			SEND=1
+		fi
+	else
+		MESSAGE="sou una colla de fredolics - ${DESCRIPCIO_DIA}"
+		SEND=1
+	fi
 	let DIES_COUNT+1
 done
-
-if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge "${LLINDAR_TEMPERATURA_BUCEIG}" ];
-then
-	MESSAGE="APTE per busseig - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
-	SEND=1
-else
-	MESSAGE="no apte per busseig - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
-	SEND=0
-fi
 
 if [ "$SEND" -eq 1 ];
 then
