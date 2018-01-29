@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 function ona_to_descripcio()
 {
 #    if (0 === a) return 50;
@@ -35,11 +36,16 @@ function ona_to_descripcio()
 
 function telegramsend()
 {
-        curl -s \
-        -X POST \
-        https://api.telegram.org/bot${TOKENBOT}/sendMessage \
-        -d text="$1" \
-        -d chat_id=$CHATID
+	if [ "$DRYRUN" -eq 1 ];
+	then
+		echo "dryruntelegram: ${1}"
+	else
+	        curl -s \
+        	-X POST \
+	        https://api.telegram.org/bot${TOKENBOT}/sendMessage \
+        	-d text="$1" \
+	        -d chat_id=$CHATID
+	fi
 }
 
 function blockpenis()
@@ -48,13 +54,13 @@ function blockpenis()
         then
                 TAMANY_PENIS=$(echo "   $1   " | wc -c)
                 echo -n " 8"
-                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; sleep 0.01; done
+                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; if [ "${DEBUG}" -ne 1 ]; then sleep 0.01; fi; done
                 echo D~
 
                 echo "   $1   "
 
                 echo -n " 8"
-                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; sleep 0.01; done
+                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; if [ "${DEBUG}" -ne 1 ]; then sleep 0.01; fi; done
                 echo D~
 
         fi
@@ -94,10 +100,9 @@ ALTURA_ONES_PREVISIO=$(echo $DADES_METEOCAT | sed 's/}]},/\n/g' | cut -f1,12,13 
 
 DIES_PREVISIO_DISPONIBLES=$(echo $DADES_METEOCAT | sed 's/}]},/\n/g' | awk -F\" '{ print $4 }' | cut -f1 -dT | sort |uniq)
 
-
-
-BASEDIR=$(dirname $0)
-BASENAME=$(basename $0)
+REALPATH=$(echo "$(cd "$(dirname "$0")"; pwd)/$(basename "$0")")
+BASEDIR=$(dirname ${REALPATH})
+BASENAME=$(basename ${REALPATH})
 
 if [ ! -z "$1" ] && [ -f "$1" ];
 then
@@ -143,6 +148,52 @@ echo '"marcmoyafredolic": true' >> $DADES_TMP_JSON
 echo "}" >> $DADES_TMP_JSON
 sed 's/dades:/\"dades\":/g' -i $DADES_TMP_JSON
 
+# telegramsend "Reservat curs de traje sec aquest proper cap de setmana amb en Jordi"
+# exit 0
+
+# jprats@shuvak:~/git/telegram-scubabot$ cat /tmp/sexyscubabot.hYaa1 | bash inc/JSON.sh  -l | grep "T09"
+# ["dades",9,"data"]	"2018-01-28T09:00Z"
+# ..18
+# ["dades",33,"data"]	"2018-01-29T09:00Z"
+# ..42
+
+DADES_METEOCAT_JSON_LEAF="$(cat "${DADES_TMP_JSON}" | bash ${BASEDIR}/inc/JSON.sh -l)"
+
+DIES_COUNT=0
+for i in ${DIES_PREVISIO_DISPONIBLES};
+do
+	for j in {9..18};
+	do
+		let HORA=j+DIES_COUNT*24
+  	REF_FILA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "${i}T$(printf "%02d\n" ${HORA})" | cut -f1,2 -d,)"
+
+		# ["dades",34,"data"]	"2018-01-30T10:00Z"
+		# ["dades",34,"variables",0,"nom"]	"temperatura"
+		# ["dades",34,"variables",0,"valor"]	11.177148437500023
+		# ...
+		# ["dades",34,"variables",5,"nom"]	"altura_ona"
+		# ["dades",34,"variables",5,"valor"]	0.1088627278804779
+		# ...
+		# ["dades",34,"variables",7,"nom"]	"temperatura_aigua"
+		# ["dades",34,"variables",7,"valor"]	13.580942153930664
+
+
+
+		REF_FILA_TEMPERATURA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILA}" | grep "\"temperatura\"" | cut -f1-4 -d,)"
+
+		TEMPERATURA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILA_TEMPERATURA}" | grep "valor" | awk '{ print $NF }')"
+
+		REF_FILA_ALTURA_ONA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILA}" | grep "\"altura_ona\"" | cut -f1-4 -d,)"
+
+		ALTURA_ONA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILA_ALTURA_ONA}" | grep "valor" | awk '{ print $NF }')"
+
+		REF_FILE_TEMPERATURA_AIGUA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILA}" | grep "\"temperatura_aigua\"" | cut -f1-4 -d,)"
+
+		TEMPERATURA_AIGUA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILE_TEMPERATURA_AIGUA}" | grep "valor" | awk '{ print $NF }')"
+	done
+	let DIES_COUNT+1
+done
+
 if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge "${LLINDAR_TEMPERATURA_BUCEIG}" ];
 then
 	MESSAGE="APTE per busseig - temperatura maxima exterior: ${TEMPERATURA_MAX_EXTERIOR} - temperatura maxima de l'aigua: ${TEMPERATURA_MAX_AIGUA}"
@@ -168,4 +219,4 @@ fi
 
 if [ "$DEBUG" -eq 1 ]; then echo "$MESSAGE"; fi;
 
-#rm -f "${DADES_TMP_JSON}"
+rm -f "${DADES_TMP_JSON}"
