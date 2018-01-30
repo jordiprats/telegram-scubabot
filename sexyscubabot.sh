@@ -40,11 +40,12 @@ function telegramsend()
 	then
 		echo "dryruntelegram: ${1}"
 	else
-	        curl -s \
-        	-X POST \
-	        https://api.telegram.org/bot${TOKENBOT}/sendMessage \
-        	-d text="$1" \
-	        -d chat_id=$CHATID
+		TEXT="$(echo -e "${1}")"
+    curl -s \
+  	-X POST \
+    https://api.telegram.org/bot${TOKENBOT}/sendMessage \
+  	-d text="${TEXT}" \
+    -d chat_id=$CHATID
 	fi
 }
 
@@ -196,7 +197,7 @@ do
 		REF_FILE_TEMPERATURA_AIGUA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILA}" | grep "\"temperatura_aigua\"" | cut -f1-4 -d,)"
 
 		TEMPERATURA_AIGUA="$(echo "${DADES_METEOCAT_JSON_LEAF}" | grep "\\${REF_FILE_TEMPERATURA_AIGUA}" | grep "valor" | awk '{ print $NF }')"
-		
+
 		# echo $TEMPERATURA $ALTURA_ONA $TEMPERATURA_AIGUA
 		if [ "${MAX_TEMPERATURA}" = "X" ];
 		then
@@ -238,8 +239,8 @@ do
 	#echo altura ona $MAX_ALTURA_ONA $MIN_ALTURA_ONA
 	#echo temperatura $MAX_TEMPERATURA $MIN_TEMPERATURA
 	#echo temperatura aigua $MAX_TEMPERATURA_AIGUA $MIN_TEMPERATURA_AIGUA
-	
-	DESCRIPCIO_DIA="exterior max: $(echo ${MAX_TEMPERATURA} | cut -f1 -d.)C min: $(echo ${MIN_TEMPERATURA} | cut -f1 -d.)C; temperatura aigua max: $(echo ${MAX_TEMPERATURA_AIGUA} | cut -f1 -d.)C min: $(echo ${MIN_TEMPERATURA_AIGUA} | cut -f1 -d.)C; altura ona max: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m min: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA) - $(ona_to_descripcio $MIN_ALTURA_ONA))"
+
+	DESCRIPCIO_DIA="temperatura exterior\nmax: $(echo ${MAX_TEMPERATURA} | cut -f1 -d.)C\nmin: $(echo ${MIN_TEMPERATURA} | cut -f1 -d.)C\ntemperatura aigua\nmax: $(echo ${MAX_TEMPERATURA_AIGUA} | cut -f1 -d.)C\nmin: $(echo ${MIN_TEMPERATURA_AIGUA} | cut -f1 -d.)C\naltura ona\nmax: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m\nmin: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA) - $(ona_to_descripcio $MIN_ALTURA_ONA))"
 
 	# regla del marc
 	if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) )) && (( $(echo "$MAX_TEMPERATURA >= 20" | bc -l) ));
@@ -249,18 +250,18 @@ do
 		# sec: menys de 10
 		if (( $(echo "$MAX_TEMPERATURA_AIGUA < 10 " | bc -l) ));
 		then
-			MESSAGE="${i} - APTE per busseig amb traje SEC - ${DESCRIPCIO_DIA}"
+			MESSAGE="${i} - APTE per busseig amb traje SEC\n${DESCRIPCIO_DIA}"
 			SEND=1
 		elif (( $(echo "$MAX_TEMPERATURA_AIGUA < 15 " | bc -l) ));
 		then
-			MESSAGE="${i} - APTE per busseig amb SEMI-SEC - ${DESCRIPCIO_DIA}"
+			MESSAGE="${i} - APTE per busseig amb SEMI-SEC\n\n${DESCRIPCIO_DIA}"
 			SEND=1
 		else
-			MESSAGE="${i} - APTE per busseig SENSE EXCUSES - ${DESCRIPCIO_DIA}"
+			MESSAGE="${i} - APTE per busseig SENSE EXCUSES\n\n${DESCRIPCIO_DIA}"
 			SEND=1
 		fi
 	else
-		MESSAGE="${i} - sou una colla de FREDOLICS - ${DESCRIPCIO_DIA}"
+		MESSAGE="${i} - sou una colla de FREDOLICS\n\n${DESCRIPCIO_DIA}"
 		SEND=1
 	fi
 
