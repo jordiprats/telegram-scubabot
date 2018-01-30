@@ -240,7 +240,7 @@ do
 	#echo temperatura $MAX_TEMPERATURA $MIN_TEMPERATURA
 	#echo temperatura aigua $MAX_TEMPERATURA_AIGUA $MIN_TEMPERATURA_AIGUA
 
-	DESCRIPCIO_DIA="temperatura exterior\nmax: $(echo ${MAX_TEMPERATURA} | cut -f1 -d.)C\nmin: $(echo ${MIN_TEMPERATURA} | cut -f1 -d.)C\ntemperatura aigua\nmax: $(echo ${MAX_TEMPERATURA_AIGUA} | cut -f1 -d.)C\nmin: $(echo ${MIN_TEMPERATURA_AIGUA} | cut -f1 -d.)C\naltura ona\nmax: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m\nmin: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA) - $(ona_to_descripcio $MIN_ALTURA_ONA))"
+	DESCRIPCIO_DIA="temperatura exterior\nmax: $(echo ${MAX_TEMPERATURA} | cut -f1 -d.)C\nmin: $(echo ${MIN_TEMPERATURA} | cut -f1 -d.)C\ntemperatura aigua\nmax: $(echo ${MAX_TEMPERATURA_AIGUA} | cut -f1 -d.)C\nmin: $(echo ${MIN_TEMPERATURA_AIGUA} | cut -f1 -d.)C\naltura ona\nmax: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA))\nmin: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MIN_ALTURA_ONA))"
 
 	# regla del marc
 	if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) )) && (( $(echo "$MAX_TEMPERATURA >= 20" | bc -l) ));
