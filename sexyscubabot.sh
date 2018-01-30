@@ -154,6 +154,16 @@ sed 's/dades:/\"dades\":/g' -i $DADES_TMP_JSON
 # ["dades",33,"data"]	"2018-01-29T09:00Z"
 # ..42
 
+if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge "20" ];
+then
+  if [ "$DRYRUN" -eq 1 ];
+  then
+    echo "imatge enviada"
+  else
+    curl -s -X POST "https://api.telegram.org/bot"${TOKENBOT}"/sendPhoto" -F chat_id=${CHATID} -F photo="@${BASEDIR}/img/sea_calling.jpg"
+  fi
+fi
+
 DADES_METEOCAT_JSON_LEAF="$(cat "${DADES_TMP_JSON}" | bash ${BASEDIR}/inc/JSON.sh -l)"
 
 DIES_COUNT=0
