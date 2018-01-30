@@ -51,20 +51,17 @@ function telegramsend()
 
 function blockpenis()
 {
-        if [ ! -z "$1" ];
-        then
-                TAMANY_PENIS=$(echo "   $1   " | wc -c)
-                echo -n " 8"
-                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; if [ "${DEBUG}" -ne 1 ]; then sleep 0.01; fi; done
-                echo D~
-
-                echo "   $1   "
-
-                echo -n " 8"
-                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; if [ "${DEBUG}" -ne 1 ]; then sleep 0.01; fi; done
-                echo D~
-
-        fi
+  if [ ! -z "$1" ];
+  then
+    TAMANY_PENIS=$(echo "   $1   " | wc -c)
+    echo -n " 8"
+    for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; if [ "${DEBUG}" -ne 1 ]; then sleep 0.01; fi; done
+    echo D~
+    echo "   $1   "
+    echo -n " 8"
+    for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; if [ "${DEBUG}" -ne 1 ]; then sleep 0.01; fi; done
+    echo D~
+  fi
 }
 
 function penis()
@@ -73,10 +70,9 @@ function penis()
   then
     echo "   $1   "
     TAMANY_PENIS=$(echo "   $1   " | wc -c)
-                echo -n " 8"
-                for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; sleep 0.01; done
-                echo D~
-
+    echo -n " 8"
+    for penis_counter in $(seq 1 $((TAMANY_PENIS-5))); do echo -n =; sleep 0.01; done
+    echo D~
   else
     echo -n 8
     for penis_counter in $(seq 1 1$(echo $RANDOM | grep -Eo "^[0-9]")); do echo -n =; sleep 0.01; done
@@ -217,23 +213,23 @@ do
       MIN_TEMPERATURA="${TEMPERATURA}"
     fi
 
-                if (( $(echo "$TEMPERATURA_AIGUA > $MAX_TEMPERATURA_AIGUA" | bc -l) ));
-                then
-                        MAX_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
-                fi
-                if (( $(echo "$TEMPERATURA_AIGUA < $MIN_TEMPERATURA_AIGUA" | bc -l) ));
-                then
-                        MIN_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
-                fi
+    if (( $(echo "$TEMPERATURA_AIGUA > $MAX_TEMPERATURA_AIGUA" | bc -l) ));
+    then
+            MAX_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
+    fi
+    if (( $(echo "$TEMPERATURA_AIGUA < $MIN_TEMPERATURA_AIGUA" | bc -l) ));
+    then
+            MIN_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
+    fi
 
-                if (( $(echo "$ALTURA_ONA > $MAX_ALTURA_ONA" | bc -l) ));
-                then
-                        MAX_ALTURA_ONA="${ALTURA_ONA}"
-                fi
-                if (( $(echo "$ALTURA_ONA < $MIN_ALTURA_ONA" | bc -l) ));
-                then
-                        MIN_ALTURA_ONA="${ALTURA_ONA}"
-                fi
+    if (( $(echo "$ALTURA_ONA > $MAX_ALTURA_ONA" | bc -l) ));
+    then
+            MAX_ALTURA_ONA="${ALTURA_ONA}"
+    fi
+    if (( $(echo "$ALTURA_ONA < $MIN_ALTURA_ONA" | bc -l) ));
+    then
+            MIN_ALTURA_ONA="${ALTURA_ONA}"
+    fi
 
   done
   #echo altura ona $MAX_ALTURA_ONA $MIN_ALTURA_ONA
