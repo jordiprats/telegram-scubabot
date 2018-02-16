@@ -1,6 +1,16 @@
 #!/bin/bash
 
+function telegramsend_img()
+{
+  if [ "$DRYRUN" -eq 1 ];
+  then
+    echo "imatge enviada: ${1}"
+  else
+    curl -s -X POST "https://api.telegram.org/bot"${TOKENBOT}"/sendPhoto" -F chat_id=${CHATID} -F photo="@${1}"
+  fi
+}
 
+# http://www.meteo.cat/wpweb/divulgacio/la-prediccio-meteorologica/escales-de-vent-i-mar/escala-douglas/
 function ona_to_descripcio()
 {
 #    if (0 === a) return 50;
@@ -156,12 +166,7 @@ sed 's/dades:/\"dades\":/g' -i $DADES_TMP_JSON
 
 if [ "${TEMPERATURA_MAX_EXTERIOR}" -ge "20" ];
 then
-  if [ "$DRYRUN" -eq 1 ];
-  then
-    echo "imatge enviada"
-  else
-    curl -s -X POST "https://api.telegram.org/bot"${TOKENBOT}"/sendPhoto" -F chat_id=${CHATID} -F photo="@${BASEDIR}/img/sea_calling.jpg"
-  fi
+  telegramsend_img "${BASEDIR}/img/sea_calling.jpg"
 fi
 
 DADES_METEOCAT_JSON_LEAF="$(cat "${DADES_TMP_JSON}" | bash ${BASEDIR}/inc/JSON.sh -l)"
@@ -267,8 +272,23 @@ do
       SEND=1
     fi
   else
-    MESSAGE="${i} - sou una colla de FREDOLICS\n\n${DESCRIPCIO_DIA}"
-    SEND=1
+    if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) ));
+    then
+      MESSAGE="${i} - sou una colla de FREDOLICS\n\n${DESCRIPCIO_DIA}"
+      SEND=0
+    else
+      MESSAGE="${i} - nomes son unes quantes onades de res\n\n${DESCRIPCIO_DIA}"
+      SEND=0
+    fi
+  fi
+
+  TODAY_TS="$(date -d "$(date +%Y-%m-%d)" +%s)"
+  ITEM_TS="$(date -d "${i}" +%s)"
+
+  #dades atrasades
+  if [ "${ITEM_TS}" -lt "${TODAY_TS}" ];
+  then
+    SEND=0
   fi
 
   if [ "$SEND" -eq 1 ];
@@ -276,7 +296,7 @@ do
         	if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
           telegramsend "$MESSAGE"
   else
-        	if [ "${VERBOSE}" -eq 1 ];
+	  if [ "${VERBOSE}" -eq 1 ];
           then
         	        if [ "$DEBUG" -eq 1 ]; then echo "missatge enviat a telegram:"; fi;
                 	telegramsend "$MESSAGE"
