@@ -2,3 +2,5 @@
 *swp
 *.config
 meteocat*png
+core
+geckodriver.log
