@@ -1,12 +1,9 @@
 from selenium import webdriver
-from time import sleep
+from time import sleep, time
 from random import randint
 
 import threading
 
-def hangover():
-    sleep(5)
-    return
 
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors')
@@ -21,10 +18,9 @@ driver = webdriver.Chrome(chrome_options=options)
 driver.get('http://meteo.cat/prediccio/platges/tossa-de-mar-de-la-mar-menuda')
 
 
-t = threading.Thread(target=hangover)
-t.start()
-t.join()
-
+start_time = time.time()
+while time.time() < start_time + 10:
+  sleep(0.1)
 
 driver.save_screenshot("meteocat_mar_menuda.png")
 
