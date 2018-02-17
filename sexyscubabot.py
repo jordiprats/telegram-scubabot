@@ -18,8 +18,8 @@ driver = webdriver.Chrome(chrome_options=options)
 driver.get('http://meteo.cat/prediccio/platges/tossa-de-mar-de-la-mar-menuda')
 
 
-start_time = time.time()
-while time.time() < start_time + 10:
+start_time = time()
+while time() < start_time + 10:
   sleep(0.1)
 
 driver.save_screenshot("meteocat_mar_menuda.png")
