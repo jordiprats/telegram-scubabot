@@ -138,3 +138,42 @@ else
   exit 1;
 fi
 
+
+
+while true; 
+do
+  MSGOUTPUT=$(curl -s "https://api.telegram.org/bot${TOKENBOT}/getUpdates" | bash "${BASEDIR}/inc/JSON.sh" -b);
+  echo -e "${MSGOUTPUT}" | while read -r line ;
+  do
+    if [[ "$line" =~ ^\[\"result\"\,[0-9]+\,\"message\"\,\"message\_id\"\][[:space:]]+([0-9]+) ]];
+    then
+      MSGID=${BASH_REMATCH[1]};
+      mkdir -p "${BASEDIR}/.msg/${MSGID}"
+    fi
+
+    if [[ "$line" =~ ^\[\"result\"\,[0-9]+\,\"message\"\,\"chat\"\,\"id\"\][[:space:]]+([0-9\-]+)$ ]];
+    then
+      CHATID=${BASH_REMATCH[1]};
+      echo "${CHATID}" > "${BASEDIR}/.msg/${MSGID}/chatid"
+    fi
+
+    if [[ "$line" =~ ^\[\"result\"\,[0-9]+\,\"message\"\,\"from\"\,\"id\"\][[:space:]]+([0-9]+)$ ]];
+    then
+      FROMID=${BASH_REMATCH[1]};
+      echo "${CHATID}" > "${BASEDIR}/.msg/${MSGID}/fromid"
+    fi
+
+    if [[ "$line" =~ ^\[\"result\"\,[0-9]+\,\"message\"\,\"text\"\][[:space:]]+\"(.+)\"$ ]];
+    then
+      TEXT=${BASH_REMATCH[1]};
+      if [ -e "${BASEDIR}/.msg/${MSGID}/text" ];
+      then
+        echo "old msg, skipping"
+      else
+        echo "${TEXT}" > "${BASEDIR}/.msg/${MSGID}/text"
+        echo "${MSGID} from ${FROMID} chat ${CHATID} text: ${TEXT}"
+      fi
+    fi
+  done
+  sleep "$(echo $RANDOM | grep -Eo "^[0-9]")"
+done
