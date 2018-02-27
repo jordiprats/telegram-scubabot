@@ -1,12 +1,34 @@
 #!/bin/bash
 
+function telegramsend()
+{
+  if [ "$DRYRUN" -eq 1 ];
+  then
+    echo "dryruntelegram: ${1}"
+  else
+    for CHATID in $(find "${BASEDIR}/.db" -type f -exec cat {} \; | sort | uniq);
+    do
+      TEXT="$(echo -e "${1}")"
+      curl -s \
+        -X POST \
+        https://api.telegram.org/bot${TOKENBOT}/sendMessage \
+        -d text="${TEXT}" \
+        -d chat_id=$CHATID
+    done
+  fi
+}
+
+
 function telegramsend_img()
 {
   if [ "$DRYRUN" -eq 1 ];
   then
     echo "imatge enviada: ${1}"
   else
-    curl -s -X POST "https://api.telegram.org/bot"${TOKENBOT}"/sendPhoto" -F chat_id=${CHATID} -F photo="@${1}"
+    for CHATID in $(find "${BASEDIR}/.db" -type f -exec cat {} \; | sort | uniq);
+    do
+      curl -s -X POST "https://api.telegram.org/bot"${TOKENBOT}"/sendPhoto" -F chat_id=${CHATID} -F photo="@${1}"
+    done
   fi
 }
 
@@ -41,21 +63,6 @@ function ona_to_descripcio()
     echo "mar arrissada"
   else
     echo "mar plana";
-  fi
-}
-
-function telegramsend()
-{
-  if [ "$DRYRUN" -eq 1 ];
-  then
-    echo "dryruntelegram: ${1}"
-  else
-    TEXT="$(echo -e "${1}")"
-    curl -s \
-  	-X POST \
-    https://api.telegram.org/bot${TOKENBOT}/sendMessage \
-  	-d text="${TEXT}" \
-    -d chat_id=$CHATID
   fi
 }
 

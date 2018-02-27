@@ -145,6 +145,18 @@ do
   MSGOUTPUT=$(curl -s "https://api.telegram.org/bot${TOKENBOT}/getUpdates" | bash "${BASEDIR}/inc/JSON.sh" -b);
   echo -e "${MSGOUTPUT}" | while read -r line ;
   do
+    # ["result",7,"update_id"]  773630262
+    # ["result",7,"message","message_id"] 73
+    # ["result",7,"message","from","id"]  13906317
+    # ["result",7,"message","from","is_bot"]  false
+    # ["result",7,"message","from","first_name"]  "Jordi"
+    # ["result",7,"message","from","language_code"] "en-ES"
+    # ["result",7,"message","chat","id"]  13906317
+    # ["result",7,"message","chat","first_name"]  "Jordi"
+    # ["result",7,"message","chat","type"]  "private"
+    # ["result",7,"message","date"] 1219732163
+    # ["result",7,"message","text"] "/start"
+
     if [[ "$line" =~ ^\[\"result\"\,[0-9]+\,\"message\"\,\"message\_id\"\][[:space:]]+([0-9]+) ]];
     then
       MSGID=${BASH_REMATCH[1]};
@@ -160,20 +172,49 @@ do
     if [[ "$line" =~ ^\[\"result\"\,[0-9]+\,\"message\"\,\"from\"\,\"id\"\][[:space:]]+([0-9]+)$ ]];
     then
       FROMID=${BASH_REMATCH[1]};
-      echo "${CHATID}" > "${BASEDIR}/.msg/${MSGID}/fromid"
+      echo "${FROMID}" > "${BASEDIR}/.msg/${MSGID}/fromid"
     fi
+
+    if [[ "$line" =~ ^\[\"result\"\,[0-9]+\,\"message\"\,\"from\"\,\"first_name\"\][[:space:]]+\"([^\"]+)\"$ ]];
+    then
+      FROM_NAME=${BASH_REMATCH[1]};
+      echo "${FROM_NAME}" > "${BASEDIR}/.msg/${MSGID}/from_name"
+    fi
+
 
     if [[ "$line" =~ ^\[\"result\"\,[0-9]+\,\"message\"\,\"text\"\][[:space:]]+\"(.+)\"$ ]];
     then
       TEXT=${BASH_REMATCH[1]};
-      if [ -e "${BASEDIR}/.msg/${MSGID}/text" ];
+      echo "${TEXT}" > "${BASEDIR}/.msg/${MSGID}/text"
+      if [ -e "${BASEDIR}/.msg/${MSGID}/response" ];
       then
-        echo "old msg, skipping"
+        if [ "${DEBUG}" -eq 1 ];
+        then
+          echo "old msg ${MSGID}, skipping"
+        fi
       else
-        echo "${TEXT}" > "${BASEDIR}/.msg/${MSGID}/text"
         echo "${MSGID} from ${FROMID} chat ${CHATID} text: ${TEXT}"
+        if [[ "${TEXT}" =~ "/start" ]];
+        then
+          mkdir -p "${BASEDIR}/.db/"
+          if [ "${DEBUG}" -eq 1 ];
+          then
+            echo ${CHATID} > "${BASEDIR}/.db/${FROMID}"
+          fi
+          telegramsend "subscripcio habilitada per usuari ${FROM_NAME}(${FROMID}) al chat ${CHATID}"
+        fi
+
+        if [[ "${TEXT}" =~ "/stop" ]];
+        then
+          telegramsend "per aturarlo primer has de fer /start"
+        fi
+
+        echo > "${BASEDIR}/.msg/${MSGID}/response"
       fi
     fi
   done
-  sleep "$(echo $RANDOM | grep -Eo "^[0-9]")"
+  RANDOM_SLEEP="$(echo "$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM" | grep -Eo "[0-3]" | head -n1)"
+  RANDOM_SLEEP=${RANDOM_SLEEP-1}
+  echo sleep ${RANDOM_SLEEP}
+  sleep "${RANDOM_SLEEP}"
 done
