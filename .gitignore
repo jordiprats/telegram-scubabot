@@ -4,3 +4,5 @@
 meteocat*png
 core
 geckodriver.log
+.db
+.msg
