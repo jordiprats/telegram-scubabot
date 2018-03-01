@@ -3,7 +3,7 @@ MAINTAINER Jordi Prats
 ENV HOME /root
 
 RUN apt-get update
-RUN apt-get install wget curl -y
+RUN apt-get install wget curl bc -y
 
 RUN mkdir -p /opt/scubabot
 COPY scubabot* /opt/scubabot/
