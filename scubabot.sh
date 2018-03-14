@@ -333,7 +333,7 @@ do
 
         if [[ "${TEXT}" =~ "/recomanaciotraje" ]];
         then
-          telegramsend "*humit*: per sobre de 15C\n*semisec*: entre 10C i 20C\n*sec*: menys de 10C"
+          telegramsend "*shorty*: entre 20C i 30C\n*humit*: entre 12C i 20C\n*semisec*: entre 10C i 20C\n*sec*: menys de 10C"
         fi
 
         if [[ "${TEXT}" =~ "/webcam" ]];
