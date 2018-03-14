@@ -103,14 +103,14 @@ function getprevisio()
   # regla del marc
   if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) )) && (( $(echo "$MAX_TEMPERATURA >= 20" | bc -l) ));
   then
-    # humit: por encima de 15°C
-    # semisec: entre 10 °C y 20 °C
+    # humit: entre 12 i 20
+    # semisec: entre 10 °C i 20 °C
     # sec: menys de 10
     if (( $(echo "$MAX_TEMPERATURA_AIGUA < 10 " | bc -l) ));
     then
-      MESSAGE="${i} - APTE per busseig amb traje SEC\n${DESCRIPCIO_DIA}"
+      MESSAGE="${i} - APTE per busseig amb SEC\n${DESCRIPCIO_DIA}"
       SEND=1
-    elif (( $(echo "$MAX_TEMPERATURA_AIGUA < 15 " | bc -l) ));
+    elif (( $(echo "$MAX_TEMPERATURA_AIGUA < 12 " | bc -l) ));
     then
       MESSAGE="${i} - APTE per busseig amb SEMI-SEC\n\n${DESCRIPCIO_DIA}"
       SEND=1
