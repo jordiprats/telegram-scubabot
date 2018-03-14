@@ -2,66 +2,7 @@
 
 export LC_ALL="en_US"
 
-function telegramsend()
-{
-  if [ "$DRYRUN" -eq 1 ];
-  then
-    echo "dryruntelegram: ${1}"
-  else
-    TEXT="$(echo -e "${1}")"
-    curl -s \
-    -X POST \
-    https://api.telegram.org/bot${TOKENBOT}/sendMessage \
-    -d text="${TEXT}" \
-    -d chat_id=$CHATID
-  fi
-}
-
-function telegramsend_img()
-{
-  if [ "$DRYRUN" -eq 1 ];
-  then
-    echo "imatge enviada: ${1}"
-  else
-    curl -s -X POST "https://api.telegram.org/bot"${TOKENBOT}"/sendPhoto" -F chat_id=${CHATID} -F photo="@${1}"
-  fi
-}
-
-# http://www.meteo.cat/wpweb/divulgacio/la-prediccio-meteorologica/escales-de-vent-i-mar/escala-douglas/
-function ona_to_descripcio()
-{
-#    if (0 === a) return 50;
-#    if (0 < a && 0.1 >= a) return 51;
-#    if (0.1 < a && 0.5 >= a) return 52;
-#    if (0.5 < a && 1.25 >= a) return 53;
-#    if (1.25 < a && 2.5 >= a) return 54;
-#    if (2.5 < a && 4 >= a) return 55;
-#    if (4 < a && 6 >= a) return 56;
-#    if (6 < a && 9 >= a) return 57;
-#    if (9 < a && 14 >= a) return 58;
-#    if (14 < a) return 59
-  if (( $(echo "$1 > 14" | bc -l) )); then
-    echo "mar enorme";
-  elif (( $(echo "$1 > 9" | bc -l) )); then
-    echo "mar molt alta";
-  elif (( $(echo "$1 > 6" | bc -l) )); then
-    echo "mar desfeta"
-  elif (( $(echo "$1 > 4" | bc -l) )); then
-    echo "mar brava"
-  elif (( $(echo "$1 > 2.5" | bc -l) )); then
-    echo "maregassa"
-  elif (( $(echo "$1 > 1.25" | bc -l) )); then
-    echo "maror"
-  elif (( $(echo "$1 > 0.5" | bc -l) )); then
-    echo "marejol"
-  elif (( $(echo "$1 > 0.1" | bc -l) )); then
-    echo "mar arrissada"
-  else
-    echo "mar plana";
-  fi
-}
-
-
+shopt -s nocasematch
 
 function getprevisio()
 {
@@ -157,7 +98,7 @@ function getprevisio()
   #echo temperatura $MAX_TEMPERATURA $MIN_TEMPERATURA
   #echo temperatura aigua $MAX_TEMPERATURA_AIGUA $MIN_TEMPERATURA_AIGUA
 
-  DESCRIPCIO_DIA="temperatura exterior\nmax: $(echo ${MAX_TEMPERATURA} | cut -f1 -d.)C\nmin: $(echo ${MIN_TEMPERATURA} | cut -f1 -d.)C\ntemperatura aigua\nmax: $(echo ${MAX_TEMPERATURA_AIGUA} | cut -f1 -d.)C\nmin: $(echo ${MIN_TEMPERATURA_AIGUA} | cut -f1 -d.)C\naltura ona\nmax: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA))\nmin: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MIN_ALTURA_ONA))"
+  DESCRIPCIO_DIA="*temperatura exterior*\nmax: $(echo ${MAX_TEMPERATURA} | grep -Eo "^[0-9]+\.?[0-9]?")C\nmin: $(echo ${MIN_TEMPERATURA} | grep -Eo "^[0-9]+\.?[0-9]?")C\n\n*temperatura aigua*\nmax: $(echo ${MAX_TEMPERATURA_AIGUA} | grep -Eo "^[0-9]+\.?[0-9]?")C\nmin: $(echo ${MIN_TEMPERATURA_AIGUA} | grep -Eo "^[0-9]+\.?[0-9]?")C\n\n*altura ona*\nmax: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA))\nmin: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MIN_ALTURA_ONA))"
 
   # regla del marc
   if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) )) && (( $(echo "$MAX_TEMPERATURA >= 20" | bc -l) ));
@@ -262,6 +203,10 @@ function separador()
 REALPATH=$(echo "$(cd "$(dirname "$0")"; pwd)/$(basename "$0")")
 BASEDIR=$(dirname ${REALPATH})
 BASENAME=$(basename ${REALPATH})
+
+source $BASEDIR/telegramsend.inc
+source $BASEDIR/douglas.inc
+source $BASEDIR/webcamtossa.inc
 
 if [ ! -z "$1" ] && [ -f "$1" ];
 then
@@ -375,6 +320,35 @@ do
         then
           getprevisio
         fi
+
+        if [[ "${TEXT}" =~ "/colorsprofunditat" ]];
+        then
+          telegramsend_img "${BASEDIR}/img/colors_profunditat.jpg"
+        fi
+
+        if [[ "${TEXT}" =~ "rm " ]];
+        then
+          telegramsend_img "${BASEDIR}/img/fuck_off.jpg"
+        fi
+
+        if [[ "${TEXT}" =~ "/recomanaciotraje" ]];
+        then
+          telegramsend "*humit*: per sobre de 15C\n*semisec*: entre 10C i 20C\n*sec*: menys de 10C"
+        fi
+
+        if [[ "${TEXT}" =~ "/webcam" ]];
+        then
+          telegram_uploading
+          getwebcamtossaGIF
+          telegramsend_document "${FRAMES_DIR}/webcam.gif"
+          cleanupwebcamtossa
+        fi
+
+        if [[ "${TEXT}" =~ "/getsource" ]];
+        then
+          telegramsend "https://github.com/jordiprats/telegram-scubabot"
+        fi
+
 
         echo > "${BASEDIR}/.msg/${MSGID}/response"
       fi
