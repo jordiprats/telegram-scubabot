@@ -344,11 +344,26 @@ do
           cleanupwebcamtossa
         fi
 
+        if [[ "${TEXT}" =~ "/temperaturaanualaigua" ]];
+        then
+          telegramsend_img "${BASEDIR}/img/temperatura_aigua_tossa_anual.png"
+        fi
+
         if [[ "${TEXT}" =~ "/getsource" ]];
         then
           telegramsend "https://github.com/jordiprats/telegram-scubabot"
         fi
 
+        if [[ "${TEXT}" =~ "/tincansies" ]];
+        then
+          TEMP_IMG=$(mktemp /tmp/ansiesimg.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
+
+          wget "$(echo "https:$(curl https://www.instagram.com/explore/tags/scubadiving/ 2>/dev/null | sed 's/},/\n/g' | grep 'edge_liked_by' | awk -F: '$5>50 { print $3,$5 }' | shuf | tail -n1 | cut -f1 -d\")")" -O $TEMP_IMG
+
+          telegramsend_img "${TEMP_IMG}"
+
+          rm $TEMP_IMG
+        fi
 
         echo > "${BASEDIR}/.msg/${MSGID}/response"
       fi
