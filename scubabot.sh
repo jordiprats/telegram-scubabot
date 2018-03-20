@@ -59,7 +59,7 @@ function getprevisio()
       # echo $TEMPERATURA $ALTURA_ONA $TEMPERATURA_AIGUA
       if [ "${MAX_TEMPERATURA}" = "X" ];
       then
-        MAX_TEMPERATURA="${TEMPERATURA}"
+       MAX_TEMPERATURA="${TEMPERATURA}"
        MIN_TEMPERATURA="${TEMPERATURA}"
        MAX_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
        MIN_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
@@ -75,8 +75,8 @@ function getprevisio()
        MIN_TEMPERATURA="${TEMPERATURA}"
      fi
 
-     if (( $(echo "$TEMPERATURA_AIGUA > $MAX_TEMPERATURA_AIGUA" | bc -l) ));
-     then
+    if (( $(echo "$TEMPERATURA_AIGUA > $MAX_TEMPERATURA_AIGUA" | bc -l) ));
+    then
        MAX_TEMPERATURA_AIGUA="${TEMPERATURA_AIGUA}"
     fi
     if (( $(echo "$TEMPERATURA_AIGUA < $MIN_TEMPERATURA_AIGUA" | bc -l) ));
@@ -86,11 +86,11 @@ function getprevisio()
 
     if (( $(echo "$ALTURA_ONA > $MAX_ALTURA_ONA" | bc -l) ));
     then
-            MAX_ALTURA_ONA="${ALTURA_ONA}"
+       MAX_ALTURA_ONA="${ALTURA_ONA}"
     fi
     if (( $(echo "$ALTURA_ONA < $MIN_ALTURA_ONA" | bc -l) ));
     then
-            MIN_ALTURA_ONA="${ALTURA_ONA}"
+       MIN_ALTURA_ONA="${ALTURA_ONA}"
     fi
 
   done
@@ -100,34 +100,42 @@ function getprevisio()
 
   DESCRIPCIO_DIA="*temperatura exterior*\nmax: $(echo ${MAX_TEMPERATURA} | grep -Eo "^[0-9]+\.?[0-9]?")C\nmin: $(echo ${MIN_TEMPERATURA} | grep -Eo "^[0-9]+\.?[0-9]?")C\n\n*temperatura aigua*\nmax: $(echo ${MAX_TEMPERATURA_AIGUA} | grep -Eo "^[0-9]+\.?[0-9]?")C\nmin: $(echo ${MIN_TEMPERATURA_AIGUA} | grep -Eo "^[0-9]+\.?[0-9]?")C\n\n*altura ona*\nmax: $(echo ${MAX_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MAX_ALTURA_ONA))\nmin: $(echo ${MIN_ALTURA_ONA} | grep -Eo "^[0-9]*\\.[0-9]{2}")m ($(ona_to_descripcio $MIN_ALTURA_ONA))"
 
+
+  # humit: entre 12 i 20
+  # semisec: entre 10 °C i 20 °C
+  # sec: menys de 10
+  if (( $(echo "$MAX_TEMPERATURA_AIGUA < 10 " | bc -l) ));
+  then
+    HEADLINE_MESSAGE="${i} - *APTE* per busseig amb *SEC* (menys de 10C)"
+    SEND=1
+  elif (( $(echo "$MAX_TEMPERATURA_AIGUA < 12 " | bc -l) ));
+  then
+    HEADLINE_MESSAGE="${i} - *APTE* per busseig amb *SEMI-SEC* (entre 10C i 20C)"
+    SEND=1
+  elif (( $(echo "$MAX_TEMPERATURA_AIGUA < 20 " | bc -l) ));
+  then
+    HEADLINE_MESSAGE="${i} - *APTE* per busseig amb *HUMIT*: (entre 12C i 20C)"
+    SEND=1
+  else
+    HEADLINE_MESSAGE="${i} - *APTE* per busseig amb *SHORTY*: (entre 20C i 30C)"
+    SEND=1
+  fi
+
   # regla del marc
   if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) )) && (( $(echo "$MAX_TEMPERATURA >= 20" | bc -l) ));
   then
-    # humit: entre 12 i 20
-    # semisec: entre 10 °C i 20 °C
-    # sec: menys de 10
-    if (( $(echo "$MAX_TEMPERATURA_AIGUA < 10 " | bc -l) ));
-    then
-      MESSAGE="${i} - APTE per busseig amb SEC\n${DESCRIPCIO_DIA}"
-      SEND=1
-    elif (( $(echo "$MAX_TEMPERATURA_AIGUA < 12 " | bc -l) ));
-    then
-      MESSAGE="${i} - APTE per busseig amb SEMI-SEC\n\n${DESCRIPCIO_DIA}"
-      SEND=1
-    else
-      MESSAGE="${i} - APTE per busseig SENSE EXCUSES\n\n${DESCRIPCIO_DIA}"
-      SEND=1
-    fi
+    MM_ALGOL_MESSAGE="ja no hi ha *EXCUSES*: algorisme MM(tm) aprova aquesta inmersió"
   else
     if (( $(echo "$MAX_ALTURA_ONA < 1.5 " | bc -l) ));
     then
-      MESSAGE="${i} - sou una colla de FREDOLICS\n\n${DESCRIPCIO_DIA}"
-      SEND=1
+      MM_ALGOL_MESSAGE="algorisme MM(tm): sou una colla de *FREDOLICS*"
     else
-      MESSAGE="${i} - nomes son unes quantes onades de res\n\n${DESCRIPCIO_DIA}"
-      SEND=1
+      MM_ALGOL_MESSAGE="algorisme MM(tm): nomes son unes quantes onades de res"
     fi
   fi
+
+  MESSAGE="${HEADLINE_MESSAGE}\n\n${MM_ALGOL_MESSAGE}\n\n${DESCRIPCIO_DIA}"
+
 
   TODAY_TS="$(date -d "$(date +%Y-%m-%d)" +%s)"
   ITEM_TS="$(date -d "${i}" +%s)"
