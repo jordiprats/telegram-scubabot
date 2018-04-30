@@ -397,7 +397,7 @@ do
 
         if [[ "${TEXT}" =~ "/ruletabussejar" ]];
         then
-          telegramsend "ha tocat *Donar una colleja al Jordi Prats*"
+          telegramsend "ha tocat *ANAR A BUSSEJAR*"
         fi
 
         if [[ "${TEXT}" =~ "/tincansies" ]];
