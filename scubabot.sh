@@ -398,7 +398,7 @@ do
         if [[ "${TEXT}" =~ "/ruletabussejar" ]];
         then
           telegramsend_document "${BASEDIR}/img/ruleta.mp4"
-          (sleep $(echo $RANDOM | grep -Eo "^[0-9]"); telegramsend "ha tocat *ANAR A BUSSEJAR*") &
+          (sleep $(echo $RANDOM | grep -Eo "^[0-9]"); telegramsend "ha tocat *ANAR A BUSSEJAR*"; telegramsend_img "${BASEDIR}/img/bussejadors.jpg") &
         fi
 
         if [[ "${TEXT}" =~ "/tincansies" ]];
