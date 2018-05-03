@@ -405,7 +405,7 @@ do
         then
           TEMP_IMG=$(mktemp /tmp/ansiesimg.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)
 
-          URL_INSTAGRAM="$(echo -e "ttps://www.instagram.com/paditv/\nhttps://www.instagram.com/cressi1946/\nhttps://www.instagram.com/explore/tags/scubadiving/\nhttps://www.instagram.com/maresjustaddwater/\nhttps://www.instagram.com/suuntodive/\nhttps://www.instagram.com/scubapro/" | shuf | tail -n1)"
+          URL_INSTAGRAM="$(echo -e "https://www.instagram.com/paditv/\nhttps://www.instagram.com/cressi1946/\nhttps://www.instagram.com/explore/tags/scubadiving/\nhttps://www.instagram.com/maresjustaddwater/\nhttps://www.instagram.com/suuntodive/\nhttps://www.instagram.com/scubapro/" | shuf | tail -n1)"
 
           wget "$(echo "https:$(curl ${URL_INSTAGRAM} 2>/dev/null | sed 's/},/\n/g' | grep 'edge_liked_by' | awk -F: '$5>50 { print $3,$5 }' | shuf | tail -n1 | cut -f1 -d\")")" -O $TEMP_IMG
 
